@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "C83364DC-8C7D-4A81-BE80-5A19B01BAD87"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C58ECABB-8DF4-40F1-B887-DDEBD5708483"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VirtualDisplayMac/VirtualDisplayManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "75"
+            endingLineNumber = "75"
+            landmarkName = "initializeAndStartStream(id:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VirtualDisplayMac/VirtualDisplayManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "initializeAndStartStream(id:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 944de44ae1481445"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "296">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - cfc5d970cd32d1cb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "240">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 15dd27ea91c8d49"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "300">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 6799d0fbbbf3af08"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(7) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "728">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 44d5d764b5c94ecf"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(8) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "928">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 944de44ae1481424"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "320">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - cfc5d970cd32d1aa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "248">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 15dd27ea91c8d28"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "312">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 6799d0fbbbf3af69"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(7) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "744">
+               </Location>
+               <Location
+                  uuid = "8B18CB0E-5F03-47C7-8C14-4EAE7D55052A - 44d5d764b5c94eae"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(8) suspend resume partial function for VirtualDisplayMac.VirtualDisplayManager.initializeAndStartStream(id: Swift.UInt16) async -&gt; ()"
+                  moduleName = "VirtualDisplayMac"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/quentinulmer/ProjektMultiScreen/VirtualDisplayMac/VirtualDisplayMac/VirtualDisplayManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "944">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E8244A08-B605-46B5-BF43-C773E4713EBD"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VirtualDisplayMac/VirtualDisplayInstance.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "34"
+            endingLineNumber = "34"
+            landmarkName = "createDisplayAndIdentify(id:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

@@ -1,0 +1,505 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D41A21652B75A2430084692E /* VirtualDisplayMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41A21642B75A2430084692E /* VirtualDisplayMacApp.swift */; };
+		D41A21672B75A2430084692E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41A21662B75A2430084692E /* ContentView.swift */; };
+		D41A21692B75A2450084692E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D41A21682B75A2450084692E /* Assets.xcassets */; };
+		D41A216C2B75A2450084692E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D41A216B2B75A2450084692E /* Preview Assets.xcassets */; };
+		D41A21772B75A4050084692E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D41A21762B75A4050084692E /* IOKit.framework */; };
+		D41A217A2B75A4EA0084692E /* VirtualDisplayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41A21792B75A4EA0084692E /* VirtualDisplayManager.swift */; };
+		D41A218E2B75ACD10084692E /* DriverKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D41A218D2B75ACD10084692E /* DriverKit.framework */; };
+		D41A21BA2B7795480084692E /* VirtualDisplayInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41A21B92B7795480084692E /* VirtualDisplayInstance.swift */; };
+		D41A21BF2B78F3820084692E /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21BE2B78F3820084692E /* NIO */; };
+		D41A21C12B78F3820084692E /* NIOConcurrencyHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21C02B78F3820084692E /* NIOConcurrencyHelpers */; };
+		D41A21C32B78F3820084692E /* NIOCore in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21C22B78F3820084692E /* NIOCore */; };
+		D41A21C52B78F3820084692E /* NIOEmbedded in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21C42B78F3820084692E /* NIOEmbedded */; };
+		D41A21C72B78F3820084692E /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21C62B78F3820084692E /* NIOFoundationCompat */; };
+		D41A21C92B78F3820084692E /* NIOHTTP1 in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21C82B78F3820084692E /* NIOHTTP1 */; };
+		D41A21CB2B78F3820084692E /* NIOPosix in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21CA2B78F3820084692E /* NIOPosix */; };
+		D41A21CD2B78F3820084692E /* NIOTLS in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21CC2B78F3820084692E /* NIOTLS */; };
+		D41A21CF2B78F3820084692E /* NIOTestUtils in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21CE2B78F3820084692E /* NIOTestUtils */; };
+		D41A21D12B78F3820084692E /* NIOWebSocket in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21D02B78F3820084692E /* NIOWebSocket */; };
+		D41A21D32B78F3820084692E /* _NIOConcurrency in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21D22B78F3820084692E /* _NIOConcurrency */; };
+		D41A21D52B78F3820084692E /* _NIOFileSystem in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21D42B78F3820084692E /* _NIOFileSystem */; };
+		D41A21D72B78F3820084692E /* _NIOFileSystemFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21D62B78F3820084692E /* _NIOFileSystemFoundationCompat */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		D41A21612B75A2430084692E /* VirtualDisplayMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualDisplayMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D41A21642B75A2430084692E /* VirtualDisplayMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDisplayMacApp.swift; sourceTree = "<group>"; };
+		D41A21662B75A2430084692E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D41A21682B75A2450084692E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D41A216B2B75A2450084692E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		D41A216D2B75A2450084692E /* VirtualDisplayMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualDisplayMac.entitlements; sourceTree = "<group>"; };
+		D41A21762B75A4050084692E /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		D41A21792B75A4EA0084692E /* VirtualDisplayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDisplayManager.swift; sourceTree = "<group>"; };
+		D41A218D2B75ACD10084692E /* DriverKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DriverKit.framework; path = System/Library/Frameworks/DriverKit.framework; sourceTree = SDKROOT; };
+		D41A218F2B75AD250084692E /* HIDDriverKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HIDDriverKit.framework; path = ../../../../System/DriverKit/System/Library/Frameworks/HIDDriverKit.framework; sourceTree = "<group>"; };
+		D41A21952B75B89A0084692E /* VirtualDisplayTreiber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualDisplayTreiber.h; sourceTree = "<group>"; };
+		D41A21972B75B9D30084692E /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		D41A21B92B7795480084692E /* VirtualDisplayInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDisplayInstance.swift; sourceTree = "<group>"; };
+		D41A21BB2B7836A20084692E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D41A215E2B75A2430084692E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D41A21BF2B78F3820084692E /* NIO in Frameworks */,
+				D41A21CB2B78F3820084692E /* NIOPosix in Frameworks */,
+				D41A21C12B78F3820084692E /* NIOConcurrencyHelpers in Frameworks */,
+				D41A21CF2B78F3820084692E /* NIOTestUtils in Frameworks */,
+				D41A218E2B75ACD10084692E /* DriverKit.framework in Frameworks */,
+				D41A21D12B78F3820084692E /* NIOWebSocket in Frameworks */,
+				D41A21D52B78F3820084692E /* _NIOFileSystem in Frameworks */,
+				D41A21C52B78F3820084692E /* NIOEmbedded in Frameworks */,
+				D41A21CD2B78F3820084692E /* NIOTLS in Frameworks */,
+				D41A21D72B78F3820084692E /* _NIOFileSystemFoundationCompat in Frameworks */,
+				D41A21C72B78F3820084692E /* NIOFoundationCompat in Frameworks */,
+				D41A21772B75A4050084692E /* IOKit.framework in Frameworks */,
+				D41A21C32B78F3820084692E /* NIOCore in Frameworks */,
+				D41A21D32B78F3820084692E /* _NIOConcurrency in Frameworks */,
+				D41A21C92B78F3820084692E /* NIOHTTP1 in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D41A21582B75A2430084692E = {
+			isa = PBXGroup;
+			children = (
+				D41A21632B75A2430084692E /* VirtualDisplayMac */,
+				D41A21622B75A2430084692E /* Products */,
+				D41A21752B75A4050084692E /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		D41A21622B75A2430084692E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D41A21612B75A2430084692E /* VirtualDisplayMac.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D41A21632B75A2430084692E /* VirtualDisplayMac */ = {
+			isa = PBXGroup;
+			children = (
+				D41A21BB2B7836A20084692E /* Info.plist */,
+				D41A21792B75A4EA0084692E /* VirtualDisplayManager.swift */,
+				D41A21B92B7795480084692E /* VirtualDisplayInstance.swift */,
+				D41A21952B75B89A0084692E /* VirtualDisplayTreiber.h */,
+				D41A21972B75B9D30084692E /* Bridging-Header.h */,
+				D41A21642B75A2430084692E /* VirtualDisplayMacApp.swift */,
+				D41A21662B75A2430084692E /* ContentView.swift */,
+				D41A21682B75A2450084692E /* Assets.xcassets */,
+				D41A216D2B75A2450084692E /* VirtualDisplayMac.entitlements */,
+				D41A216A2B75A2450084692E /* Preview Content */,
+			);
+			path = VirtualDisplayMac;
+			sourceTree = "<group>";
+		};
+		D41A216A2B75A2450084692E /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				D41A216B2B75A2450084692E /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		D41A21752B75A4050084692E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D41A218F2B75AD250084692E /* HIDDriverKit.framework */,
+				D41A218D2B75ACD10084692E /* DriverKit.framework */,
+				D41A21762B75A4050084692E /* IOKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D41A21602B75A2430084692E /* VirtualDisplayMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D41A21702B75A2450084692E /* Build configuration list for PBXNativeTarget "VirtualDisplayMac" */;
+			buildPhases = (
+				D41A215D2B75A2430084692E /* Sources */,
+				D41A215E2B75A2430084692E /* Frameworks */,
+				D41A215F2B75A2430084692E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VirtualDisplayMac;
+			packageProductDependencies = (
+				D41A21BE2B78F3820084692E /* NIO */,
+				D41A21C02B78F3820084692E /* NIOConcurrencyHelpers */,
+				D41A21C22B78F3820084692E /* NIOCore */,
+				D41A21C42B78F3820084692E /* NIOEmbedded */,
+				D41A21C62B78F3820084692E /* NIOFoundationCompat */,
+				D41A21C82B78F3820084692E /* NIOHTTP1 */,
+				D41A21CA2B78F3820084692E /* NIOPosix */,
+				D41A21CC2B78F3820084692E /* NIOTLS */,
+				D41A21CE2B78F3820084692E /* NIOTestUtils */,
+				D41A21D02B78F3820084692E /* NIOWebSocket */,
+				D41A21D22B78F3820084692E /* _NIOConcurrency */,
+				D41A21D42B78F3820084692E /* _NIOFileSystem */,
+				D41A21D62B78F3820084692E /* _NIOFileSystemFoundationCompat */,
+			);
+			productName = VirtualDisplayMac;
+			productReference = D41A21612B75A2430084692E /* VirtualDisplayMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D41A21592B75A2430084692E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					D41A21602B75A2430084692E = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = D41A215C2B75A2430084692E /* Build configuration list for PBXProject "VirtualDisplayMac" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D41A21582B75A2430084692E;
+			packageReferences = (
+				D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */,
+			);
+			productRefGroup = D41A21622B75A2430084692E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D41A21602B75A2430084692E /* VirtualDisplayMac */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D41A215F2B75A2430084692E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D41A216C2B75A2450084692E /* Preview Assets.xcassets in Resources */,
+				D41A21692B75A2450084692E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D41A215D2B75A2430084692E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D41A21672B75A2430084692E /* ContentView.swift in Sources */,
+				D41A21BA2B7795480084692E /* VirtualDisplayInstance.swift in Sources */,
+				D41A217A2B75A4EA0084692E /* VirtualDisplayManager.swift in Sources */,
+				D41A21652B75A2430084692E /* VirtualDisplayMacApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		D41A216E2B75A2450084692E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D41A216F2B75A2450084692E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		D41A21712B75A2450084692E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VirtualDisplayMac/VirtualDisplayMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"VirtualDisplayMac/Preview Content\"";
+				DEVELOPMENT_TEAM = 84Z6K3K4KC;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualDisplayMac/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = private.VirtualDisplayMac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "VirtualDisplayMac/Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D41A21722B75A2450084692E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VirtualDisplayMac/VirtualDisplayMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"VirtualDisplayMac/Preview Content\"";
+				DEVELOPMENT_TEAM = 84Z6K3K4KC;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualDisplayMac/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = private.VirtualDisplayMac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "VirtualDisplayMac/Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D41A215C2B75A2430084692E /* Build configuration list for PBXProject "VirtualDisplayMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D41A216E2B75A2450084692E /* Debug */,
+				D41A216F2B75A2450084692E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D41A21702B75A2450084692E /* Build configuration list for PBXNativeTarget "VirtualDisplayMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D41A21712B75A2450084692E /* Debug */,
+				D41A21722B75A2450084692E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-nio.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.63.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D41A21BE2B78F3820084692E /* NIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIO;
+		};
+		D41A21C02B78F3820084692E /* NIOConcurrencyHelpers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOConcurrencyHelpers;
+		};
+		D41A21C22B78F3820084692E /* NIOCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOCore;
+		};
+		D41A21C42B78F3820084692E /* NIOEmbedded */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOEmbedded;
+		};
+		D41A21C62B78F3820084692E /* NIOFoundationCompat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOFoundationCompat;
+		};
+		D41A21C82B78F3820084692E /* NIOHTTP1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOHTTP1;
+		};
+		D41A21CA2B78F3820084692E /* NIOPosix */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOPosix;
+		};
+		D41A21CC2B78F3820084692E /* NIOTLS */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOTLS;
+		};
+		D41A21CE2B78F3820084692E /* NIOTestUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOTestUtils;
+		};
+		D41A21D02B78F3820084692E /* NIOWebSocket */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOWebSocket;
+		};
+		D41A21D22B78F3820084692E /* _NIOConcurrency */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = _NIOConcurrency;
+		};
+		D41A21D42B78F3820084692E /* _NIOFileSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = _NIOFileSystem;
+		};
+		D41A21D62B78F3820084692E /* _NIOFileSystemFoundationCompat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D41A21BD2B78F3820084692E /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = _NIOFileSystemFoundationCompat;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = D41A21592B75A2430084692E /* Project object */;
+}
