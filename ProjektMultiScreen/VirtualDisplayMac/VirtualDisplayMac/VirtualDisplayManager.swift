@@ -5,11 +5,6 @@
 //  Created by Quentin Ulmer on 09.02.24.
 //
 
-//import Foundation
-//import CoreGraphics
-//import AVFoundation
-//import ScreenCaptureKit
-
 import Foundation
 import ScreenCaptureKit
 import NIO
@@ -53,8 +48,8 @@ class VirtualDisplayManager: NSObject {
                 // Step 4: Configure the stream with matched display settings
                 let streamConfig = SCStreamConfiguration()
                 
-                streamConfig.width = virtualDisplay.width // Example, adjust based on actual requirements
-                streamConfig.height = virtualDisplay.height // Example, adjust based on actual requirements
+                streamConfig.width = virtualDisplay.width
+                streamConfig.height = virtualDisplay.height
                 // Set the capture interval at 60 fps.
                 streamConfig.minimumFrameInterval = CMTime(value: 1, timescale: 60)
                 // Increase the depth of the frame queue to ensure high fps at the expense of increasing
@@ -63,23 +58,21 @@ class VirtualDisplayManager: NSObject {
                 
                 // Initialize and start the stream with general content and configuration
                 let stream = SCStream(filter: filter, configuration: streamConfig, delegate: nil)
-                // Erstelle eine Dispatch Queue für die Verarbeitung der Sample Buffers
+                // Create Dispatch Queue
                 let videoSampleBufferQueue = DispatchQueue(label: "com.example.myApp.videoSampleBufferQueue")
 
-                // Erstelle eine Instanz von StreamOutput
+                // Create an Instanz of StreamOutput
                 let streamOutput = StreamOutput(sampleHandlerQueue: videoSampleBufferQueue)
                 
                 streamOutput.setupTCPConnection(to: "localhost", port: id)
 
-                // Füge StreamOutput dem SCStream hinzu
+                // Adds StreamOutput to SCStream
                 try stream.addStreamOutput(streamOutput, type: .screen, sampleHandlerQueue: videoSampleBufferQueue)
 
                 self.displayStream = stream // Store the stream instance to keep it alive
                 self.streamOutput = streamOutput
                 try await stream.startCapture()
                 
-//                // Initialize and start the stream with the filter and configuration
-//                try await SCStream(filter: filter, configuration: streamConfig, delegate: self).startCapture()
                 
             } else {
                 print("Failed to find a matching display for the given virtualDisplay.id")
@@ -107,18 +100,16 @@ class StreamOutput: NSObject,SCStreamOutput {
         }
     
     deinit {
-            // Räume die EventLoopGroup auf, wenn StreamOutput zerstört wird
+            // Cleans eventLoop
             try? eventLoopGroup.syncShutdownGracefully()
         }
 
     
     func setupTCPConnection(to ipAddress: String, port: UInt16) {
             let bootstrap = ClientBootstrap(group: eventLoopGroup)
-                // Konfiguriere den Bootstrap (z.B. Timeout, ChannelOptionen)
+                // Config Bootstrap (z.B. Timeout, ChannelOptionen)
                 .channelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
                 .channelInitializer { channel in
-                    // Hier könntest du Handler hinzufügen, falls du Nachrichten verarbeiten möchtest,
-                    // die vom Server empfangen werden
                     return channel.eventLoop.makeSucceededFuture(())
                 }
             bootstrap.connect(host: ipAddress, port: Int(port)).whenSuccess { channel in
@@ -129,7 +120,7 @@ class StreamOutput: NSObject,SCStreamOutput {
 
     func sendTCP(data: Data) {
         guard let channel = self.channel else {
-            print("TCP-Verbindung ist nicht hergestellt.")
+            print("TCP connection is not established.")
             return
         }
 
@@ -142,10 +133,10 @@ class StreamOutput: NSObject,SCStreamOutput {
         channel.writeAndFlush(buffer).whenComplete { result in
             switch result {
             case .success:
-                print("erfolgreich gesendet.")
+                print("Successfully sent.")
             case .failure(let error):
-                print("Fehler beim Senden: \(error)")
-                break // Optional: Abbruch bei Fehler
+                print("Error while sending: \(error)")
+                break
             }
         }
     }
@@ -161,10 +152,10 @@ class StreamOutput: NSObject,SCStreamOutput {
         sendTCP(data: data)
     }
     
-    // Konvertierung von CMSampleBuffer zu Data
+
     func convertSampleBufferToData(_ sampleBuffer: CMSampleBuffer) -> Data? {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-            print("Fehler: Konnte keinen ImageBuffer aus dem SampleBuffer extrahieren.")
+            print("Error: Could not extract an ImageBuffer from the SampleBuffer.")
             return nil
         }
         
@@ -173,15 +164,13 @@ class StreamOutput: NSObject,SCStreamOutput {
         
         let ciImage = CIImage(cvPixelBuffer: imageBuffer)
         
-        // Optionen für die JPEG-Komprimierung, inklusive Bildqualität.
+        // Options for JPEG-CompressionQuality
         let jpegCompressionQuality: CGFloat = 0.8
         let options = [kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: jpegCompressionQuality]
-        
-        // Direkte Verwendung von CGColorSpaceCreateDeviceRGB(), da es nicht optional ist.
+
         let colorSpace = ciImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
-        // Verwendung von guard für die optionale Rückgabe von jpegRepresentation().
         guard let jpegData = self.context.jpegRepresentation(of: ciImage, colorSpace: colorSpace, options: options) else {
-            print("Fehler: Konnte das CIImage nicht als JPEG komprimieren.")
+            print("Error: Could not compress the CIImage as JPEG.")
             return nil
         }
         
@@ -191,7 +180,6 @@ class StreamOutput: NSObject,SCStreamOutput {
 
     
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        // Verarbeite den SampleBuffer hier, um ihn über TCP zu senden
         processFrameAndSendTCP(sampleBuffer)
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 import NIO
 import UIKit
 
-// Handler, der eingehende Daten empfängt und verarbeitet
+// Recive and Handle Data
 final class ImageDataHandler: ChannelInboundHandler {
     typealias InboundIn = ByteBuffer
     typealias OutboundOut = ByteBuffer
@@ -30,7 +30,7 @@ final class ImageDataHandler: ChannelInboundHandler {
         if let bytes = byteBuffer.readBytes(length: byteBuffer.readableBytes) {
             receivedData.append(contentsOf: bytes)
 
-            // Überprüfen, ob das Bild vollständig empfangen wurde
+            // Check if Iamge is Complete
             let imageDataSeparator = "END_OF_IMAGE".data(using: .utf8)!
             if dataHasSuffix(data: receivedData, suffix: imageDataSeparator) {
                 let imageEndIndex = receivedData.endIndex - imageDataSeparator.count
@@ -38,24 +38,23 @@ final class ImageDataHandler: ChannelInboundHandler {
                 let imageData = receivedData[..<imageEndIndex]
                 if let image = UIImage(data: imageData) {
                     DispatchQueue.main.async {
-                        // Definiere ein userInfo Dictionary, welches das Bild und den Port enthält
+                        // store Iamge and Port
                         let userInfo = ["image": image, "port": self.port] as [String : Any]
                         
-                        // Versende die Notification mit dem userInfo Dictionary, statt nur das Bild
+                        // Send userInfo Dictionary
                         NotificationCenter.default.post(name: NSNotification.Name("NewImageReceived"), object: nil, userInfo: userInfo)
                     }
                 }
                     
-                    // Sende eine Bestätigungsnachricht an den Client
-                    let confirmationMessage = "Bild erfolgreich empfangen."
+                    let confirmationMessage = "Image received successfully."
                     var buffer = context.channel.allocator.buffer(capacity: confirmationMessage.utf8.count)
                     buffer.writeString(confirmationMessage)
                     context.writeAndFlush(self.wrapOutboundOut(buffer), promise: nil)
 
-                    // Entferne den bereits verarbeiteten Teil des empfangenen Datenstroms
+                    // Remove Processed Subrange
                     receivedData.removeSubrange(..<imageEndIndex)
 
-                    // Entferne auch das imageDataSeparator aus dem empfangenen Datenstrom
+                    // Remove imageDataSeparator
                     receivedData.removeFirst(imageDataSeparator.count)
                 } else {
                     print("Fehler: Konnte das Bild nicht erstellen.")
@@ -86,7 +85,7 @@ class TCPImageReceiver {
             .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
 
         channel = try bootstrap.bind(host: "localhost", port: port).wait()
-        print("Server läuft auf: \(channel!.localAddress!)")
+        print("The server is running on: \(channel!.localAddress!)")
     }
 
     func stop() throws {

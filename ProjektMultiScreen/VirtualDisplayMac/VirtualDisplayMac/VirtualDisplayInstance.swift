@@ -34,7 +34,7 @@ class VirtualDisplayInstance {
             self.mainInit(id: id)
             
             // Potentially wait a moment for the system to register the new virtual display
-            try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds sleep as an example
+            try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds sleep
             
             // Step 3: Fetch available displays after creation
             let updatedDisplays = await self.fetchAvailableDisplayIDs()
@@ -79,13 +79,12 @@ class VirtualDisplayInstance {
         self.width = 1920
         descriptor.sizeInMillimeters = CGSize(width: 1920, height: 1080)
 
-        // Machen Sie `vendorID`, `productID`, `serialNum` einzigartig basierend auf der `id`
+        // `vendorID`, `productID`, `serialNum` conversion with unique `id`
         descriptor.vendorID = 0x1234 + UInt32(id)
         descriptor.productID = 0x5678 + UInt32(id)
-        // Der SerialNum könnte einfach als `id` selbst benutzt werden, falls eine echte Einzigartigkeit gewünscht ist
         descriptor.serialNum = UInt32(id)
         
-        // Verwende die id, um die Queue eindeutig zu kennzeichnen
+        // Define Queue
         descriptor.queue = DispatchQueue(label: "com.example.virtualdisplay.\(id)")
 
         // Initialize display settings
@@ -105,9 +104,9 @@ class VirtualDisplayInstance {
         }
     }
     
-    // Placeholder methods for fetching display IDs and finding the new display ID
+    // fetching display IDs and finding the new display ID
     private func fetchAvailableDisplayIDs() async -> [UInt32] {
-        var availableDisplayList: [UInt32] = [] // Correctly declare an array to store Int32 values
+        var availableDisplayList: [UInt32] = []
 
         do {
             // Retrieve the available content to capture
@@ -120,7 +119,6 @@ class VirtualDisplayInstance {
             
             return availableDisplayList // Return the populated list of display IDs
         } catch {
-            // Handle errors if any of the awaited calls can throw
             print("An error occurred while fetching available display IDs: \(error)")
             return [] // Return an empty array if there's an error
         }

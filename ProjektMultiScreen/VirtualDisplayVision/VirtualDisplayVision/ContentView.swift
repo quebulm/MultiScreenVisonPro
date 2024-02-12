@@ -16,7 +16,7 @@ struct ContentView: View {
                     .aspectRatio(contentMode: .fit)
                     .padding()
             } else {
-                Text("Warte auf Video...")
+                Text("Waiting for video...")
                     .padding()
             }
             
@@ -29,7 +29,7 @@ struct ContentView: View {
                 viewModel.startListening(on: viewModel.port)
             }
             
-            Button("Öffne neues Space für nächsten Port") {
+            Button("Open new space for next port.") {
                 Task {
                     openWindow(id: "SecondWindow")
                 }
@@ -54,7 +54,7 @@ struct SecondWindow: View {
                     .aspectRatio(contentMode: .fit)
                     .padding()
             } else {
-                Text("Warte auf Video...")
+                Text("Waiting for video...")
                     .padding()
             }
             
@@ -67,7 +67,7 @@ struct SecondWindow: View {
                 viewModel.startListening(on: viewModel.port)
             }
             
-            Button("Öffne neues Space für nächsten Port") {
+            Button("Open new space for next port.") {
                 Task {
                     viewModel.startListening(on: port)
                     openWindow(id: "thirdWindow")
@@ -97,7 +97,7 @@ struct thirdWindow: View {
                     .aspectRatio(contentMode: .fit)
                     .padding()
             } else {
-                Text("Warte auf Video...")
+                Text("Waiting for video...")
                     .padding()
             }
             
@@ -154,10 +154,10 @@ class VideoStreamViewModel: ObservableObject {
 
         do {
             try imageReceiver.start(port: port)
-            print("Server gestartet auf Port \(port)...")
+            print("Server started on port \(port)...")
             self.imageReceivers.append(imageReceiver)
         } catch {
-            print("Server konnte nicht gestartet werden auf Port \(port): \(error)")
+            print("Server could not be started on Port \(port): \(error)")
         }
     }
 }
