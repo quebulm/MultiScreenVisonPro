@@ -9,6 +9,8 @@ import Foundation
 import ScreenCaptureKit
 import NIO
 import NIOFoundationCompat
+import VideoToolbox
+
 
 
 class VirtualDisplayManager: NSObject {
@@ -63,6 +65,7 @@ class VirtualDisplayManager: NSObject {
 
                 // Create an Instanz of StreamOutput
                 let streamOutput = StreamOutput(sampleHandlerQueue: videoSampleBufferQueue)
+                streamOutput.setupCompressionSession()
                 
                 streamOutput.setupTCPConnection(to: "localhost", port: id)
 
@@ -84,12 +87,30 @@ class VirtualDisplayManager: NSObject {
     
 }
 
+func compressionOutputCallback(outputCallbackRefCon: UnsafeMutableRawPointer?, sourceFrameRefCon: UnsafeMutableRawPointer?, status: OSStatus, infoFlags: VTEncodeInfoFlags, sampleBuffer: CMSampleBuffer?) {
+    guard status == noErr, let sampleBuffer = sampleBuffer, CMSampleBufferDataIsReady(sampleBuffer) else {
+        print("Error or sample buffer not ready")
+        return
+    }
+
+    // Extract 'self' from 'refcon'
+    guard let refCon = outputCallbackRefCon else { return }
+    let streamOutput = Unmanaged<StreamOutput>.fromOpaque(refCon).takeUnretainedValue()
+
+    // Debugging NAL Unit information
+    //debugPrintNALUnitInfo(sampleBuffer: sampleBuffer)
+
+    // Compressed frame is ready, now send it over TCP
+    streamOutput.sendCompressedFrameTCP(sampleBuffer: sampleBuffer)
+}
+
 
 class StreamOutput: NSObject,SCStreamOutput {
     
     let sampleHandlerQueue: DispatchQueue
     var channel: Channel?
     let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    var compressionSession: VTCompressionSession?
     
     private let context: CIContext
 
@@ -124,59 +145,196 @@ class StreamOutput: NSObject,SCStreamOutput {
             return
         }
 
-        let imageDataSeparator = "END_OF_IMAGE".data(using: .utf8)!
-        var sendData = data
-        sendData.append(imageDataSeparator)
+        // Prepare the data for sending without appending an imageDataSeparator
+        var buffer = channel.allocator.buffer(capacity: data.count)
+        buffer.writeBytes(data)
 
-        var buffer = channel.allocator.buffer(capacity: sendData.count)
-        buffer.writeBytes(sendData)
+        // Send the data over the channel
         channel.writeAndFlush(buffer).whenComplete { result in
             switch result {
             case .success:
-                print("Successfully sent.")
+                print("Successfully sent data.")
             case .failure(let error):
                 print("Error while sending: \(error)")
-                break
             }
         }
     }
 
     
+    
+    // Implement the sending of compressed frame
+    func sendCompressedFrameTCP(sampleBuffer: CMSampleBuffer) {
+//        debugPrintSampleBufferInfo(sampleBuffer: sampleBuffer)
+//        if let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: true) as? [Dictionary<String, Any>] {
+//            for attachment in attachments {
+//                // Hier können Sie prüfen, ob die Anhänge relevante Daten enthalten
+//                print("Attachment: \(attachment)")
+//            }
+//        }
+
+        if let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) {
+            var length = Int()
+            var totalLength = Int()
+            var dataPointer: UnsafeMutablePointer<Int8>?
+
+            let result = CMBlockBufferGetDataPointer(dataBuffer, atOffset: 0, lengthAtOffsetOut: &length, totalLengthOut: &totalLength, dataPointerOut: &dataPointer)
+            
+            print("CMBlockBufferGetDataPointer result: \(result)")
+            if result == noErr, let dataPointer = dataPointer {
+                let data = Data(bytes: dataPointer, count: totalLength)
+                print("Sending \(totalLength) bytes of compressed data.")
+                sendTCP(data: data)
+            } else {
+                print("Failed to access data.")
+            }
+        } else {
+            print("No data buffer found in sample buffer.")
+        }
+
+    }
+
+//    func debugPrintSampleBufferInfo(sampleBuffer: CMSampleBuffer) {
+//        if let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) {
+//            let mediaType = CMFormatDescriptionGetMediaType(formatDescription)
+//            print("Media type: \(mediaType == kCMMediaType_Video ? "Video" : "Unknown")")
+//            
+//            let format = CMFormatDescriptionGetMediaSubType(formatDescription)
+//            print("Media format: \(fourCCToString(format))")
+//        } else {
+//            print("No format description available.")
+//        }
+//    }
+//
+//    func fourCCToString(_ fourCC: FourCharCode) -> String {
+//        let bytes: [CChar] = [
+//            CChar((fourCC >> 24) & 0xff),
+//            CChar((fourCC >> 16) & 0xff),
+//            CChar((fourCC >> 8) & 0xff),
+//            CChar(fourCC & 0xff),
+//            0
+//        ]
+//        return String(cString: bytes)
+//    }
+
+
+
+
+    
     func processFrameAndSendTCP(_ sampleBuffer: CMSampleBuffer) {
         print("entered processFrameAndSendTCP")
-        guard let data = convertSampleBufferToData(sampleBuffer) else {
-            print("Failed to convert sample buffer to data")
+        // Ensure the compression session is set up
+        guard compressionSession != nil else {
+            print("Compression session is not set up")
+            return
+        }
+        // Ensure the sampleBuffer contains video data
+        guard CMSampleBufferGetNumSamples(sampleBuffer) > 0 else {
+            print("Sample buffer contains no samples")
+            return
+        }
+        guard CMSampleBufferIsValid(sampleBuffer) else {
+            print("Sample buffer is not valid")
+            return
+        }
+        guard CMSampleBufferDataIsReady(sampleBuffer) else {
+            print("Sample buffer data is not ready")
             return
         }
 
-        sendTCP(data: data)
+        // Compress and send the frame using the compression session
+        encodeFrame(sampleBuffer: sampleBuffer)
     }
     
-
-    func convertSampleBufferToData(_ sampleBuffer: CMSampleBuffer) -> Data? {
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-            print("Error: Could not extract an ImageBuffer from the SampleBuffer.")
-            return nil
-        }
-        
-        CVPixelBufferLockBaseAddress(imageBuffer, .readOnly)
-        defer { CVPixelBufferUnlockBaseAddress(imageBuffer, .readOnly) }
-        
-        let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-        
-        // Options for JPEG-CompressionQuality
-        let jpegCompressionQuality: CGFloat = 0.8
-        let options = [kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: jpegCompressionQuality]
-
-        let colorSpace = ciImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
-        guard let jpegData = self.context.jpegRepresentation(of: ciImage, colorSpace: colorSpace, options: options) else {
-            print("Error: Could not compress the CIImage as JPEG.")
-            return nil
-        }
-        
-        return jpegData
+    func setupCompressionSession() {
+        let width = Int32(1920) // Use actual width
+        let height = Int32(1080) // Use actual height
+        createCompressionSession(width: width, height: height)
     }
- 
+    
+    
+    func createCompressionSession(width: Int32, height: Int32) {
+        let imageBufferAttributes: [String: Any] = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+            kCVPixelBufferWidthKey as String: width,
+            kCVPixelBufferHeightKey as String: height,
+            kCVPixelBufferIOSurfacePropertiesKey as String: [:] // Diese Zeile kann nötig sein, um Hardware-Beschleunigung zu ermöglichen
+        ]
+
+        var compressionSession: VTCompressionSession?
+        let status = VTCompressionSessionCreate(
+            allocator: nil,
+            width: width,
+            height: height,
+            codecType: kCMVideoCodecType_H264, // Oder kCMVideoCodecType_HEVC für H.265
+            encoderSpecification: nil,
+            imageBufferAttributes: imageBufferAttributes as CFDictionary,
+            compressedDataAllocator: nil,
+            outputCallback: compressionOutputCallback,
+            refcon: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()),
+            compressionSessionOut: &compressionSession
+        )
+
+        if status != noErr {
+            print("Error creating compression session: \(status)")
+            return
+        }
+
+        // configure (Bitrate, Frame-Rate, Profil, etc.)
+        let averageBitRate = [Int(6000 * 1000)] // bits per second
+        VTSessionSetProperty(compressionSession!, key: kVTCompressionPropertyKey_AverageBitRate, value: averageBitRate as CFTypeRef)
+        let dataRateLimits = [averageBitRate, 1] as [Any] // Array in the form: [Data rate in bytes, Duration in seconds].
+        VTSessionSetProperty(compressionSession!, key: kVTCompressionPropertyKey_DataRateLimits, value: dataRateLimits as CFTypeRef)
+
+        VTSessionSetProperty(compressionSession!, key: kVTCompressionPropertyKey_RealTime, value: kCFBooleanTrue)
+
+        self.compressionSession = compressionSession // Saving the session in your class.
+
+        print("Compression session created with specific imageBufferAttributes")
+    }
+
+    func encodeFrame(sampleBuffer: CMSampleBuffer) {
+        guard let compressionSession = compressionSession else {
+            print("Compression session is not set up")
+            return
+        }
+        
+        if let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) {
+            let mediaType = CMFormatDescriptionGetMediaType(formatDescription)
+            if mediaType == kCMMediaType_Video {
+//                print("The sampleBuffer contains video data")
+               
+                if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+                    let width = CVPixelBufferGetWidth(imageBuffer)
+                    let height = CVPixelBufferGetHeight(imageBuffer)
+//                    print("Image buffer dimensions: \(width)x\(height)")
+                } else {
+                    return
+//                    print("Failed to create an image buffer from sample buffer.")
+//                    
+//                    let formatDesc = CMFormatDescriptionGetMediaSubType(formatDescription)
+//                    let format = FourCharCode(formatDesc).description
+//                    print("Media format: \(format)")
+                }
+            } else {
+                print("The sampleBuffer doesn't contain video data, it contains \(mediaType)")
+            }
+        } else {
+            print("No format description available for the sample buffer.")
+        }
+        
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+//            print("Failed to get the image buffer from sample buffer")
+            return
+        }
+        
+        let presentationTimeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        let duration = CMSampleBufferGetDuration(sampleBuffer)
+        
+        VTCompressionSessionEncodeFrame(compressionSession, imageBuffer: imageBuffer, presentationTimeStamp: presentationTimeStamp, duration: duration, frameProperties: nil, sourceFrameRefcon: nil, infoFlagsOut: nil)
+    }
+
+
+
 
     
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
