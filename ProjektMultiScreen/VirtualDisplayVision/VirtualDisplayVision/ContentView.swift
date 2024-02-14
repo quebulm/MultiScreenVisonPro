@@ -97,7 +97,7 @@ struct SecondWindow: View {
                         },
                         openNewSpaceAction: {
                             Task {
-                                openWindow(id: "SecondWindow")
+                                openWindow(id: "thirdWindow")
                             }
                         }
                     )
@@ -144,7 +144,7 @@ struct thirdWindow: View {
                         },
                         openNewSpaceAction: {
                             Task {
-                                openWindow(id: "SecondWindow")
+                                // Too much lag
                             }
                         }
                     )
