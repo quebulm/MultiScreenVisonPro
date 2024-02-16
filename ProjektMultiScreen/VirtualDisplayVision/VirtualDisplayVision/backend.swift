@@ -52,39 +52,36 @@ final class ImageDataHandler: ChannelInboundHandler {
     }
 
 
-    func findEarliestStartCode(in buffer: Data, from index: Data.Index) -> Range<Data.Index>? {
-        let longStartCode = Data([0x00, 0x00, 0x00, 0x01])
+    func rollingHashSearch(in buffer: Data, from index: Data.Index) -> Range<Data.Index>? {
         let searchRange = buffer[index...]
+        var currentSlice = Data(repeating: 0, count:4)
+        let targetSlice = Data([0x00, 0x00, 0x00, 0x01])
 
-        if let foundLongStartCodeRange = searchRange.range(of: longStartCode) {
-            return foundLongStartCodeRange
+        for (i, byte) in searchRange.enumerated() {
+            currentSlice.removeFirst()
+            currentSlice.append(byte)
+            if i >= 3 && currentSlice == targetSlice {  // Only check if valid range
+                let start = searchRange.startIndex + i - 3
+                let end = searchRange.startIndex + i + 1
+                return start..<end
+            }
         }
-        // no code found
         return nil
     }
 
-
     func extractCompleteNALUnit(from buffer: inout Data) -> Data? {
-        
-        // Search for the first start code
-        guard let firstStartCodeRange = findEarliestStartCode(in: buffer, from: buffer.startIndex) else {
+        guard let firstStartCodeRange = rollingHashSearch(in: buffer, from: buffer.startIndex) else {
             return nil
         }
-        
+
         let nextSearchStartIndex = firstStartCodeRange.upperBound
-        
-        // Search for the second start code in the remaining buffer
-        guard let secondStartCodeRange = findEarliestStartCode(in: buffer, from: nextSearchStartIndex) else {
+        guard let secondStartCodeRange = rollingHashSearch(in: buffer, from: nextSearchStartIndex) else {
             return nil
         }
-        
+
         let nalUnitRange = firstStartCodeRange.upperBound..<secondStartCodeRange.lowerBound
-        
-        
         if nalUnitRange.lowerBound >= buffer.startIndex && nalUnitRange.upperBound <= buffer.endIndex {
-            // Extract the NAL unit from the buffer without the start code
             let nalUnit = buffer.subdata(in: nalUnitRange)
-            // Update the buffer by removing everything up to the beginning of the second start code
             buffer.removeSubrange(0..<secondStartCodeRange.lowerBound)
             print("NalUnit Processed")
             return nalUnit
@@ -95,24 +92,33 @@ final class ImageDataHandler: ChannelInboundHandler {
 
 
 
-
     
+    func annexBtoLengthPrefixed(nalUnit: Data) -> Data {
+        var length = UInt32(nalUnit.count).bigEndian // length in big endian
+        let lengthData = Data(bytes: &length, count: 4)
+        
+        var lengthPrefixedNalUnit = Data()
+        lengthPrefixedNalUnit.append(lengthData)
+        lengthPrefixedNalUnit.append(nalUnit)
+        
+        return lengthPrefixedNalUnit
+    }
+
     func processVideoFrame(nalUnit: Data) -> Bool {
         
         // Extract the NAL unit type
         let nalUnitType = nalUnit.first! & 0x1F
         print("NAL Unit Type: \(nalUnitType)")
         
+        let lengthPrefixedNalUnit = annexBtoLengthPrefixed(nalUnit: nalUnit)
         
         switch nalUnitType {
         case 7:
             // Sequence Parameter Set (SPS)
             spsData = nalUnit
-            printFoundDataSize(data: spsData, type: "SPS")
         case 8:
             // Picture Parameter Set (PPS)
             ppsData = nalUnit
-            printFoundDataSize(data: ppsData, type: "PPS")
         case 1, 5:
             // Coded Slice of a Non-IDR Picture oder Coded Slice of an IDR Picture
             // Main Video Data
@@ -121,36 +127,26 @@ final class ImageDataHandler: ChannelInboundHandler {
                 return false
             }
             
-            prepareVideoFormatDescription()
-            
             guard videoFormatDescription != nil else {
                 print("Video format description not available.")
+                prepareVideoFormatDescription()
+                createDecompressionSession()
                 return false
             }
             
-            guard let sampleBuffer = createCMSampleBufferFromNALUnit(nalUnit: nalUnit) else {
+            guard let sampleBuffer = createCMSampleBufferFromNALUnit(nalUnit: lengthPrefixedNalUnit) else {
                 print("Failed to create sample buffer.")
                 return false
             }
             
             return decodeFrame(sampleBuffer: sampleBuffer)
         default:
-                print("Unhandled NAL Unit Type: \(nalUnitType)")
-                return false
-            }
-
+            print("Unhandled NAL Unit Type: \(nalUnitType)")
+            return false
+        }
         
         return true
     }
-    
-//    func printFoundDataSize(data: Data?, type: String) {
-//        guard let data = data else {
-//            print("\(type) Data not found.")
-//            return
-//        }
-//        // Druckt die Größe der Daten in Bytes.
-//        print("Found \(type) Data with size: \(data.count) bytes")
-//    }
 
 
 
@@ -240,7 +236,6 @@ final class ImageDataHandler: ChannelInboundHandler {
                     print("Codec-Typ: \(codecType)")
                     
                     self.videoFormatDescription = formatDescription
-                    createDecompressionSession()
                 } else {
                     print("Fehler beim Erstellen der Videoformatbeschreibung: \(status)")
                 }
@@ -284,9 +279,9 @@ final class ImageDataHandler: ChannelInboundHandler {
             guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return }
             let uiImage = UIImage(cgImage: cgImage)
 
-            DispatchQueue.main.async {
+//            DispatchQueue.main.async {
                 NotificationCenter.default.post(name: NSNotification.Name("NewImageReceived"), object: nil, userInfo: ["port": mySelf.port, "image": uiImage])
-            }
+//            }
         }
 
         var callbackRecord = VTDecompressionOutputCallbackRecord(decompressionOutputCallback: callback,
