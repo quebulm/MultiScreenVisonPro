@@ -97,12 +97,24 @@ func compressionOutputCallback(outputCallbackRefCon: UnsafeMutableRawPointer?, s
     guard let refCon = outputCallbackRefCon else { return }
     let streamOutput = Unmanaged<StreamOutput>.fromOpaque(refCon).takeUnretainedValue()
 
-    // Debugging NAL Unit information
-    //debugPrintNALUnitInfo(sampleBuffer: sampleBuffer)
+    // Check if format description is available to extract SPS & PPS data
+    if let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) {
+        // Check for video media type
+        let mediaType = CMFormatDescriptionGetMediaType(formatDescription)
+        if mediaType == kCMMediaType_Video {
+            // Attempt to extract SPS and PPS if they have not been extracted yet
+            if streamOutput.spsData == nil || streamOutput.ppsData == nil {
+                streamOutput.extractSPSandPPS(from: formatDescription)
+            }
+        }
+    }
 
     // Compressed frame is ready, now send it over TCP
     streamOutput.sendCompressedFrameTCP(sampleBuffer: sampleBuffer)
 }
+
+
+
 
 
 class StreamOutput: NSObject,SCStreamOutput {
@@ -113,6 +125,38 @@ class StreamOutput: NSObject,SCStreamOutput {
     var compressionSession: VTCompressionSession?
     
     private let context: CIContext
+    
+    var spsData: Data?
+    var ppsData: Data?
+
+    func extractSPSandPPS(from formatDescription: CMFormatDescription) {
+        var spsSize: Int = 0
+        var ppsSize: Int = 0
+        var spsCount: Int = 0
+        var ppsCount: Int = 0
+        var spsPointer: UnsafePointer<UInt8>?
+        var ppsPointer: UnsafePointer<UInt8>?
+        var nalUnitHeaderLength: Int32 = 0
+
+        // Extract SPS
+        let spsStatus = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription, parameterSetIndex: 0, parameterSetPointerOut: &spsPointer, parameterSetSizeOut: &spsSize, parameterSetCountOut: &spsCount, nalUnitHeaderLengthOut: &nalUnitHeaderLength)
+
+        // Extract PPS
+        let ppsStatus = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription, parameterSetIndex: 1, parameterSetPointerOut: &ppsPointer, parameterSetSizeOut: &ppsSize, parameterSetCountOut: &ppsCount, nalUnitHeaderLengthOut: &nalUnitHeaderLength)
+
+        if spsStatus == noErr, ppsStatus == noErr, let spsPointer = spsPointer, let ppsPointer = ppsPointer {
+            self.spsData = Data(bytes: spsPointer, count: spsSize)
+            self.ppsData = Data(bytes: ppsPointer, count: ppsSize)
+            
+            print("SPS size: \(spsSize), PPS size: \(ppsSize)")
+            print("SPS and PPS extracted and stored.")
+            // first send SPS and PPS
+            sendInitialSPSandPPS()
+
+        } else {
+            print("Failed to extract SPS/PPS data.")
+        }
+    }
 
 
     init(sampleHandlerQueue: DispatchQueue) {
@@ -159,62 +203,79 @@ class StreamOutput: NSObject,SCStreamOutput {
             }
         }
     }
-
     
-    
-    // Implement the sending of compressed frame
-    func sendCompressedFrameTCP(sampleBuffer: CMSampleBuffer) {
-//        debugPrintSampleBufferInfo(sampleBuffer: sampleBuffer)
-//        if let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: true) as? [Dictionary<String, Any>] {
-//            for attachment in attachments {
-//                // Hier können Sie prüfen, ob die Anhänge relevante Daten enthalten
-//                print("Attachment: \(attachment)")
-//            }
-//        }
-
-        if let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) {
-            var length = Int()
-            var totalLength = Int()
-            var dataPointer: UnsafeMutablePointer<Int8>?
-
-            let result = CMBlockBufferGetDataPointer(dataBuffer, atOffset: 0, lengthAtOffsetOut: &length, totalLengthOut: &totalLength, dataPointerOut: &dataPointer)
-            
-            print("CMBlockBufferGetDataPointer result: \(result)")
-            if result == noErr, let dataPointer = dataPointer {
-                let data = Data(bytes: dataPointer, count: totalLength)
-                print("Sending \(totalLength) bytes of compressed data.")
-                sendTCP(data: data)
-            } else {
-                print("Failed to access data.")
-            }
-        } else {
-            print("No data buffer found in sample buffer.")
+    func sendInitialSPSandPPS() {
+        guard let sps = spsData, let pps = ppsData else {
+            print("SPS or PPS data not available.")
+            return
         }
 
+        var initData = Data()
+        // Add Startcode then SPS-Data
+        initData.append(contentsOf: [0x00, 0x00, 0x00, 0x01])
+        initData.append(sps)
+        // Add starter code and then PPS data
+        initData.append(contentsOf: [0x00, 0x00, 0x00, 0x01])
+        initData.append(pps)
+        
+
+        // Send the prepared data over TCP
+        sendTCP(data: initData)
+        print("SPS and PPS data sent over TCP.")
     }
 
-//    func debugPrintSampleBufferInfo(sampleBuffer: CMSampleBuffer) {
-//        if let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) {
-//            let mediaType = CMFormatDescriptionGetMediaType(formatDescription)
-//            print("Media type: \(mediaType == kCMMediaType_Video ? "Video" : "Unknown")")
-//            
-//            let format = CMFormatDescriptionGetMediaSubType(formatDescription)
-//            print("Media format: \(fourCCToString(format))")
-//        } else {
-//            print("No format description available.")
-//        }
-//    }
-//
-//    func fourCCToString(_ fourCC: FourCharCode) -> String {
-//        let bytes: [CChar] = [
-//            CChar((fourCC >> 24) & 0xff),
-//            CChar((fourCC >> 16) & 0xff),
-//            CChar((fourCC >> 8) & 0xff),
-//            CChar(fourCC & 0xff),
-//            0
-//        ]
-//        return String(cString: bytes)
-//    }
+
+    
+    
+    func sendCompressedFrameTCP(sampleBuffer: CMSampleBuffer) {
+        guard let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else {
+            print("No data buffer found in sample buffer.")
+            return
+        }
+
+        var length = Int()
+        var totalLength = Int()
+        var dataPointer: UnsafeMutablePointer<Int8>?
+
+        let result = CMBlockBufferGetDataPointer(dataBuffer, atOffset: 0, lengthAtOffsetOut: &length, totalLengthOut: &totalLength, dataPointerOut: &dataPointer)
+        
+        if result != noErr || dataPointer == nil {
+            print("Failed to access data. Result: \(result)")
+            return
+        }
+
+        print("Total data length: \(totalLength) bytes")
+
+        let data = Data(bytes: dataPointer!, count: totalLength)
+        var annexBData = Data()
+        var offset = 0
+        while offset + 4 <= data.count {
+            let nalUnitLength = Int(data[offset..<offset+4].reduce(0) { $0 << 8 | Int($1) })
+            offset += 4
+
+            guard offset + nalUnitLength <= data.count else {
+                print("Invalid NAL unit length at offset \(offset - 4).")
+                break
+            }
+
+            annexBData.append(contentsOf: [0x00, 0x00, 0x00, 0x01])
+            
+            // The NAL type is in the lower 5 bits of the first byte of the NAL unit.
+            let nalType = data[offset] & 0x1F
+            print("NAL Unit Type: \(nalType)")
+
+            annexBData.append(data[offset..<offset + nalUnitLength])
+            offset += nalUnitLength
+        }
+
+        if !annexBData.isEmpty {
+            print("Total Annex-B data length: \(annexBData.count) bytes. Preparing to send over TCP.")
+            sendTCP(data: annexBData)
+        } else {
+            print("No valid NAL units found to send.")
+        }
+    }
+
 
 
 
@@ -257,7 +318,7 @@ class StreamOutput: NSObject,SCStreamOutput {
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
             kCVPixelBufferWidthKey as String: width,
             kCVPixelBufferHeightKey as String: height,
-            kCVPixelBufferIOSurfacePropertiesKey as String: [:] // Diese Zeile kann nötig sein, um Hardware-Beschleunigung zu ermöglichen
+            kCVPixelBufferIOSurfacePropertiesKey as String: [:]
         ]
 
         var compressionSession: VTCompressionSession?
@@ -265,7 +326,7 @@ class StreamOutput: NSObject,SCStreamOutput {
             allocator: nil,
             width: width,
             height: height,
-            codecType: kCMVideoCodecType_H264, // Oder kCMVideoCodecType_HEVC für H.265
+            codecType: kCMVideoCodecType_H264, // Or kCMVideoCodecType_HEVC for H.265
             encoderSpecification: nil,
             imageBufferAttributes: imageBufferAttributes as CFDictionary,
             compressedDataAllocator: nil,
@@ -309,11 +370,6 @@ class StreamOutput: NSObject,SCStreamOutput {
 //                    print("Image buffer dimensions: \(width)x\(height)")
                 } else {
                     return
-//                    print("Failed to create an image buffer from sample buffer.")
-//                    
-//                    let formatDesc = CMFormatDescriptionGetMediaSubType(formatDescription)
-//                    let format = FourCharCode(formatDesc).description
-//                    print("Media format: \(format)")
                 }
             } else {
                 print("The sampleBuffer doesn't contain video data, it contains \(mediaType)")
