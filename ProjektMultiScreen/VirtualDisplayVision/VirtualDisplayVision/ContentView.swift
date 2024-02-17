@@ -1,81 +1,114 @@
 import SwiftUI
 
+struct TabBarView: View {
+    var startListeningAction: () -> Void
+    var openNewSpaceAction: () -> Void
+
+    var body: some View {
+        HStack {
+            Button(action: startListeningAction) {
+                Label("Start", systemImage: "play.circle")
+            }
+            Button(action: openNewSpaceAction) {
+                Label("New Space", systemImage: "square.grid.2x2")
+            }
+        }
+        .padding()
+    }
+}
+
+
+
+
 struct ContentView: View {
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
-
-    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     var port = 8000
     @StateObject private var viewModel = VideoStreamViewModel(port: 8000)
     
     var body: some View {
-        VStack {
-            if let image = viewModel.currentFrame {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding()
-            } else {
-                Text("Waiting for video...")
-                    .padding()
+        ZStack {
+            // Main content area
+            VStack {
+                if let image = viewModel.currentFrame {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding()
+                } else {
+                    Text("Waiting for video...")
+                        .padding()
+                }
             }
             
-            Spacer()
-            
-            Text("TCP Video Stream")
-                .padding(.bottom, 50)
-            
-            Button("Start Listening on Default Port") {
-                viewModel.startListening(on: viewModel.port)
-            }
-            
-            Button("Open new space for next port.") {
-                Task {
-                    openWindow(id: "SecondWindow")
+            // Positions the TabBarView bottom right
+            HStack {
+                Spacer() // Shifts everything to the right
+                VStack {
+                    Spacer() // Shifts everything downwards
+                    TabBarView(
+                        startListeningAction: {
+                            viewModel.startListening(on: viewModel.port)
+                        },
+                        openNewSpaceAction: {
+                            Task {
+                                openWindow(id: "SecondWindow")
+                            }
+                        }
+                    )
+                    .frame(width: 500)
+                    .padding()
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
+
+
 struct SecondWindow: View {
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
-
-    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     var port = 8001
     @StateObject private var viewModel = VideoStreamViewModel(port: 8001)
     
     var body: some View {
-        VStack {
-            if let image = viewModel.currentFrame2 {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding()
-            } else {
-                Text("Waiting for video...")
-                    .padding()
+        ZStack {
+            // Main content area
+            VStack {
+                if let image = viewModel.currentFrame2 {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding()
+                } else {
+                    Text("Waiting for video...")
+                        .padding()
+                }
             }
             
-            Spacer()
-            
-            Text("TCP Video Stream")
-                .padding(.bottom, 50)
-            
-            Button("Start Listening on Default Port") {
-                viewModel.startListening(on: viewModel.port)
-            }
-            
-            Button("Open new space for next port.") {
-                Task {
-                    viewModel.startListening(on: port)
-                    openWindow(id: "thirdWindow")
+
+            HStack {
+                Spacer()
+                VStack {
+                    Spacer()
+                    TabBarView(
+                        startListeningAction: {
+                            viewModel.startListening(on: viewModel.port)
+                        },
+                        openNewSpaceAction: {
+                            Task {
+                                openWindow(id: "thirdWindow")
+                            }
+                        }
+                    )
+                    .frame(width: 500)
+                    .padding()
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-   }
+}
 
 #Preview {
     SecondWindow()
@@ -83,36 +116,46 @@ struct SecondWindow: View {
 
 struct thirdWindow: View {
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
-
-    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     var port = 8002
     @StateObject private var viewModel = VideoStreamViewModel(port: 8002)
     
     var body: some View {
-        VStack {
-            if let image = viewModel.currentFrame3 {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding()
-            } else {
-                Text("Waiting for video...")
-                    .padding()
+        ZStack {
+            VStack {
+                if let image = viewModel.currentFrame3 {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding()
+                } else {
+                    Text("Waiting for video...")
+                        .padding()
+                }
             }
             
-            Spacer()
             
-            Text("TCP Video Stream")
-                .padding(.bottom, 50)
-            
-            Button("Start Listening on Default Port") {
-                viewModel.startListening(on: viewModel.port)
+            HStack {
+                Spacer()
+                VStack {
+                    Spacer()
+                    TabBarView(
+                        startListeningAction: {
+                            viewModel.startListening(on: viewModel.port)
+                        },
+                        openNewSpaceAction: {
+                            Task {
+                                // Too much lag
+                            }
+                        }
+                    )
+                    .frame(width: 500)
+                    .padding()
+                }
             }
-        
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-   }
+}
 
 #Preview {
     thirdWindow()
@@ -138,7 +181,7 @@ class VideoStreamViewModel: ObservableObject {
                 return
             }
             
-            // Entscheide, welche Variable aktualisiert wird, abhängig vom empfangenen Port
+            // Decide which variable gets updated depending on the received port
             if receivedPort == 8000 {
                 self?.currentFrame = image
             } else if receivedPort == 8001 {

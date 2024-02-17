@@ -165,7 +165,7 @@ class StreamOutput: NSObject,SCStreamOutput {
         let ciImage = CIImage(cvPixelBuffer: imageBuffer)
         
         // Options for JPEG-CompressionQuality
-        let jpegCompressionQuality: CGFloat = 0.8
+        let jpegCompressionQuality: CGFloat = 0.6
         let options = [kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: jpegCompressionQuality]
 
         let colorSpace = ciImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
