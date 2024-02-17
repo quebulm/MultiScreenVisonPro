@@ -13,13 +13,13 @@ struct VirtualDisplayVisionApp: App {
         WindowGroup {
             ContentView()
         }
-        
-        WindowGroup (id: "SecondWindow"){
-                    SecondWindow()
-                }
-        
-        WindowGroup (id: "thirdWindow"){
-                    thirdWindow()
-                }
+//        
+//        WindowGroup (id: "SecondWindow"){
+//                    SecondWindow()
+//                }
+//        
+//        WindowGroup (id: "thirdWindow"){
+//                    thirdWindow()
+//                }
     }
 }

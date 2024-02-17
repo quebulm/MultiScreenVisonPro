@@ -20,12 +20,23 @@ var decompressionSession: VTDecompressionSession?
 var spsData: Data?
 var ppsData: Data?
 
+protocol ImageDataHandlerDelegate: AnyObject {
+    func didReceiveSampleBuffer(_ sampleBuffer: CMSampleBuffer)
+}
+
 
 // MARK: - ChannelInboundHandler for processing received data
 final class ImageDataHandler: ChannelInboundHandler {
+    weak var delegate: ImageDataHandlerDelegate?
     var videoFormatDescription: CMVideoFormatDescription?
     typealias InboundIn = ByteBuffer
     typealias OutboundOut = ByteBuffer
+    var videoLayer: AVSampleBufferDisplayLayer = AVSampleBufferDisplayLayer()
+    weak var videoDisplayView: VideoDisplayView?
+
+    
+    
+    var framessend: Int64 = 0
     
     var port: Int
     
@@ -34,51 +45,77 @@ final class ImageDataHandler: ChannelInboundHandler {
     }
     
     
+    
+    
     var receivedData = Data()
-
+    
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        
+        
+        
         var byteBuffer = self.unwrapInboundIn(data)
         
         if let bytes = byteBuffer.readBytes(length: byteBuffer.readableBytes) {
             receivedData.append(contentsOf: bytes)
-//            print(bytes)
-
+            //            print(bytes)
+            
             // Extract and process all complete NAL units in the received data buffer.
             while let nalUnit = extractCompleteNALUnit(from: &receivedData) {
+                framessend += 1
+                print("sended: \(framessend)")
                 self.processVideoFrame(nalUnit: nalUnit)
             }
         }
     }
-
-
+    
+    
     func rollingHashSearch(in buffer: Data, from index: Data.Index) -> Range<Data.Index>? {
-        let searchRange = buffer[index...]
-        var currentSlice = Data(repeating: 0, count:4)
         let targetSlice = Data([0x00, 0x00, 0x00, 0x01])
-
-        for (i, byte) in searchRange.enumerated() {
-            currentSlice.removeFirst()
-            currentSlice.append(byte)
-            if i >= 3 && currentSlice == targetSlice {  // Only check if valid range
-                let start = searchRange.startIndex + i - 3
-                let end = searchRange.startIndex + i + 1
-                return start..<end
+        let targetLength = targetSlice.count
+        guard buffer.count >= index + targetLength else { return nil }
+        
+        var currentHash = 0
+        var targetHash = 0
+        for byte in targetSlice {
+            targetHash += Int(byte)
+        }
+        
+        for i in 0..<targetLength {
+            currentHash += Int(buffer[index + i])
+        }
+        
+        if currentHash == targetHash && buffer[index..<(index + targetLength)] == targetSlice {
+            return index..<(index + targetLength)
+        }
+        
+        for i in index..<(buffer.count - targetLength) {
+            currentHash -= Int(buffer[i])
+            currentHash += Int(buffer[i + targetLength])
+            
+            if currentHash == targetHash {
+                let potentialMatchRange = (i + 1)..<(i + 1 + targetLength)
+                if buffer[potentialMatchRange] == targetSlice {
+                    return potentialMatchRange
+                }
             }
         }
+        
         return nil
     }
-
+    
+    
+    
     func extractCompleteNALUnit(from buffer: inout Data) -> Data? {
         guard let firstStartCodeRange = rollingHashSearch(in: buffer, from: buffer.startIndex) else {
             return nil
         }
-
+        
         let nextSearchStartIndex = firstStartCodeRange.upperBound
         guard let secondStartCodeRange = rollingHashSearch(in: buffer, from: nextSearchStartIndex) else {
             return nil
         }
-
+        
         let nalUnitRange = firstStartCodeRange.upperBound..<secondStartCodeRange.lowerBound
         if nalUnitRange.lowerBound >= buffer.startIndex && nalUnitRange.upperBound <= buffer.endIndex {
             let nalUnit = buffer.subdata(in: nalUnitRange)
@@ -89,9 +126,8 @@ final class ImageDataHandler: ChannelInboundHandler {
             return nil
         }
     }
-
-
-
+    
+    
     
     func annexBtoLengthPrefixed(nalUnit: Data) -> Data {
         var length = UInt32(nalUnit.count).bigEndian // length in big endian
@@ -103,14 +139,12 @@ final class ImageDataHandler: ChannelInboundHandler {
         
         return lengthPrefixedNalUnit
     }
-
+    
     func processVideoFrame(nalUnit: Data) -> Bool {
         
         // Extract the NAL unit type
         let nalUnitType = nalUnit.first! & 0x1F
         print("NAL Unit Type: \(nalUnitType)")
-        
-        let lengthPrefixedNalUnit = annexBtoLengthPrefixed(nalUnit: nalUnit)
         
         switch nalUnitType {
         case 7:
@@ -122,6 +156,7 @@ final class ImageDataHandler: ChannelInboundHandler {
         case 1, 5:
             // Coded Slice of a Non-IDR Picture oder Coded Slice of an IDR Picture
             // Main Video Data
+            let lengthPrefixedNalUnit = annexBtoLengthPrefixed(nalUnit: nalUnit)
             guard let _ = spsData, let _ = ppsData else {
                 print("SPS or PPS data not available.")
                 return false
@@ -130,7 +165,6 @@ final class ImageDataHandler: ChannelInboundHandler {
             guard videoFormatDescription != nil else {
                 print("Video format description not available.")
                 prepareVideoFormatDescription()
-                createDecompressionSession()
                 return false
             }
             
@@ -139,7 +173,12 @@ final class ImageDataHandler: ChannelInboundHandler {
                 return false
             }
             
-            return decodeFrame(sampleBuffer: sampleBuffer)
+            DispatchQueue.main.async { [weak self] in
+                print("called didReceiveSampleBuffer, delegate is \(String(describing: self?.delegate))")
+                self?.delegate?.didReceiveSampleBuffer(sampleBuffer)
+                return
+            }
+            
         default:
             print("Unhandled NAL Unit Type: \(nalUnitType)")
             return false
@@ -147,21 +186,21 @@ final class ImageDataHandler: ChannelInboundHandler {
         
         return true
     }
+    
+//    func displayWithAVSampleBufferDisplayLayer(sampleBuffer: CMSampleBuffer) -> Bool {
+//            DispatchQueue.main.async { [weak self] in
+//                guard let self = self, let layer = self.videoDisplayView?.videoLayer, layer.isReadyForMoreMediaData else {
+//                    print("Layer is not ready for more media data.")
+//                    return
+//                }
+//                layer.enqueue(sampleBuffer)
+//            }
+//            return true
+//        }
 
-
-
-    func decodeFrame(sampleBuffer: CMSampleBuffer) -> Bool {
-        var infoFlags = VTDecodeInfoFlags(rawValue: 0)
-        let result = VTDecompressionSessionDecodeFrame(decompressionSession!, sampleBuffer: sampleBuffer, flags: [], frameRefcon: nil, infoFlagsOut: &infoFlags)
-        
-        if result != noErr {
-            print("Decoding failed. Error code: \(result)")
-            return false
-        }
-        return true
-    }
-
-
+    
+    
+    
     func createCMSampleBufferFromNALUnit(nalUnit: Data) -> CMSampleBuffer? {
         // Convert the incoming data to a CMBlockBuffer
         var blockBuffer: CMBlockBuffer?
@@ -194,8 +233,8 @@ final class ImageDataHandler: ChannelInboundHandler {
         
         return sampleBuffer
     }
-
-
+    
+    
     func prepareVideoFormatDescription() {
         guard let sps = spsData, let pps = ppsData else {
             print("SPS or PPS data not available.")
@@ -222,16 +261,16 @@ final class ImageDataHandler: ChannelInboundHandler {
                 var formatDescription: CMFormatDescription?
                 
                 let status = CMVideoFormatDescriptionCreateFromH264ParameterSets(allocator: kCFAllocatorDefault,
-                                                                                  parameterSetCount: 2,
-                                                                                  parameterSetPointers: pointers,
-                                                                                  parameterSetSizes: parameterSetSizes,
-                                                                                  nalUnitHeaderLength: 4,
-                                                                                  formatDescriptionOut: &formatDescription)
+                                                                                 parameterSetCount: 2,
+                                                                                 parameterSetPointers: pointers,
+                                                                                 parameterSetSizes: parameterSetSizes,
+                                                                                 nalUnitHeaderLength: 4,
+                                                                                 formatDescriptionOut: &formatDescription)
                 
                 if status == noErr, let formatDescription = formatDescription {
                     let dimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
                     print("Breite: \(dimensions.width), Höhe: \(dimensions.height)")
-
+                    
                     let codecType = CMFormatDescriptionGetMediaType(formatDescription)
                     print("Codec-Typ: \(codecType)")
                     
@@ -242,64 +281,7 @@ final class ImageDataHandler: ChannelInboundHandler {
             }
         }
     }
-
-
-    
-    
-    func createDecompressionSession() {
-        print("Attempting to create decompression session...")
-
-        // Check if the session already exists and close it if necessary
-        if decompressionSession != nil {
-            print("Decompression session already exists, invalidating and setting to nil.")
-            VTDecompressionSessionInvalidate(decompressionSession!)
-            decompressionSession = nil
-        }
-
-        // Ensure videoFormatDescription is set
-        guard let videoFormatDescription = self.videoFormatDescription else {
-            print("VideoFormatDescription is nil, can't create decompression session.")
-            return
-        }
-        print("VideoFormatDescription is set, proceeding with decompression session creation.")
-
-        let parameters = NSMutableDictionary()
-
-        let callback: VTDecompressionOutputCallback = { decompressionOutputRefCon, _, status, _, imageBuffer, _, _ in
-            let mySelf = Unmanaged<ImageDataHandler>.fromOpaque(decompressionOutputRefCon!).takeUnretainedValue()
-
-            guard status == noErr, let imageBuffer = imageBuffer else {
-                print("Error in decompression callback: \(status)")
-                return
-            }
-
-            // Convert CVPixelBuffer to UIImage
-            let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-            let context = CIContext(options: nil)
-            guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return }
-            let uiImage = UIImage(cgImage: cgImage)
-
-//            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: NSNotification.Name("NewImageReceived"), object: nil, userInfo: ["port": mySelf.port, "image": uiImage])
-//            }
-        }
-
-        var callbackRecord = VTDecompressionOutputCallbackRecord(decompressionOutputCallback: callback,
-                                                                 decompressionOutputRefCon: Unmanaged.passUnretained(self).toOpaque())
-
-        let status = VTDecompressionSessionCreate(allocator: nil, formatDescription: videoFormatDescription, decoderSpecification: parameters, imageBufferAttributes: nil, outputCallback: &callbackRecord, decompressionSessionOut: &decompressionSession)
-
-        if status == noErr {
-            print("Decompression session successfully created.")
-        } else {
-            print("Error creating decompression session: \(status)")
-        }
-    }
-
-
-    
 }
-
 
 // MARK: - TCP Image Receiver Logic
 class TCPImageReceiver {
@@ -307,11 +289,11 @@ class TCPImageReceiver {
     private var channel: Channel?
     
     // Start TCP server to receive images
-    func start(port: Int) throws {
+    func start(port: Int, withHandler handler: ImageDataHandler) throws {
         let bootstrap = ServerBootstrap(group: group)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .childChannelInitializer { channel in
-                channel.pipeline.addHandler(ImageDataHandler(port: port))
+                channel.pipeline.addHandler(handler)
             }
             .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
         

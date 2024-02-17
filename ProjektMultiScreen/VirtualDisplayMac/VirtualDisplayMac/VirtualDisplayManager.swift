@@ -124,6 +124,8 @@ class StreamOutput: NSObject,SCStreamOutput {
     let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
     var compressionSession: VTCompressionSession?
     
+    var framessend = 0
+    
     private let context: CIContext
     
     var spsData: Data?
@@ -244,37 +246,48 @@ class StreamOutput: NSObject,SCStreamOutput {
             return
         }
 
-        print("Total data length: \(totalLength) bytes")
+        guard let pointer = dataPointer else {
+            print("Data pointer is nil.")
+            return
+        }
 
-        let data = Data(bytes: dataPointer!, count: totalLength)
-        var annexBData = Data()
+        var annexBData = Data(capacity: totalLength + 4 * (totalLength / 4)) // Preallocate to avoid reallocations
         var offset = 0
-        while offset + 4 <= data.count {
-            let nalUnitLength = Int(data[offset..<offset+4].reduce(0) { $0 << 8 | Int($1) })
+        let startCode: [UInt8] = [0x00, 0x00, 0x00, 0x01]
+
+        while offset + 4 <= totalLength {
+            let nalUnitLength = pointer.withMemoryRebound(to: UInt32.self, capacity: 1) { ptr -> Int in
+                let networkOrderValue = ptr[offset / MemoryLayout<UInt32>.size]
+                return Int(CFSwapInt32BigToHost(networkOrderValue))
+            }
             offset += 4
 
-            guard offset + nalUnitLength <= data.count else {
+            guard offset + nalUnitLength <= totalLength else {
                 print("Invalid NAL unit length at offset \(offset - 4).")
                 break
             }
 
-            annexBData.append(contentsOf: [0x00, 0x00, 0x00, 0x01])
-            
-            // The NAL type is in the lower 5 bits of the first byte of the NAL unit.
-            let nalType = data[offset] & 0x1F
-            print("NAL Unit Type: \(nalType)")
+            annexBData.append(contentsOf: startCode)
 
-            annexBData.append(data[offset..<offset + nalUnitLength])
+            // Directly append bytes from pointer to Data
+            if let dataPointer = dataPointer {
+                let uint8Pointer = UnsafeRawPointer(dataPointer).assumingMemoryBound(to: UInt8.self)
+                annexBData.append(uint8Pointer.advanced(by: offset), count: nalUnitLength)
+            }
+
             offset += nalUnitLength
         }
 
         if !annexBData.isEmpty {
-            print("Total Annex-B data length: \(annexBData.count) bytes. Preparing to send over TCP.")
+//            print("Total Annex-B data length: \(annexBData.count) bytes. Preparing to send over TCP.")
             sendTCP(data: annexBData)
+            framessend += 1
+            print("sended: \(framessend)")
         } else {
             print("No valid NAL units found to send.")
         }
     }
+
 
 
 
@@ -341,7 +354,7 @@ class StreamOutput: NSObject,SCStreamOutput {
         }
 
         // configure (Bitrate, Frame-Rate, Profil, etc.)
-        let averageBitRate = [Int(6000 * 1000)] // bits per second
+        let averageBitRate = [Int(1000 * 1000)] // bits per second
         VTSessionSetProperty(compressionSession!, key: kVTCompressionPropertyKey_AverageBitRate, value: averageBitRate as CFTypeRef)
         let dataRateLimits = [averageBitRate, 1] as [Any] // Array in the form: [Data rate in bytes, Duration in seconds].
         VTSessionSetProperty(compressionSession!, key: kVTCompressionPropertyKey_DataRateLimits, value: dataRateLimits as CFTypeRef)

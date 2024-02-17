@@ -18,6 +18,8 @@
 		D41A21E02B78F52F0084692E /* NIOEmbedded in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21DF2B78F52F0084692E /* NIOEmbedded */; };
 		D41A21E22B78F52F0084692E /* NIOFoundationCompat in Frameworks */ = {isa = PBXBuildFile; productRef = D41A21E12B78F52F0084692E /* NIOFoundationCompat */; };
 		D41A21E42B78F6A50084692E /* backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41A21E32B78F6A50084692E /* backend.swift */; };
+		D4CCDF792B800B7D000F6F2E /* VideoDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CCDF782B800B7D000F6F2E /* VideoDisplayView.swift */; };
+		D4CCDF7B2B800BCB000F6F2E /* VideoDisplaySwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CCDF7A2B800BCB000F6F2E /* VideoDisplaySwiftUIView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,8 @@
 		D41A21B12B75C88C0084692E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D41A21B32B75C88C0084692E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D41A21E32B78F6A50084692E /* backend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = backend.swift; sourceTree = "<group>"; };
+		D4CCDF782B800B7D000F6F2E /* VideoDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDisplayView.swift; sourceTree = "<group>"; };
+		D4CCDF7A2B800BCB000F6F2E /* VideoDisplaySwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDisplaySwiftUIView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +75,8 @@
 				D41A21E32B78F6A50084692E /* backend.swift */,
 				D41A21AA2B75C88B0084692E /* VirtualDisplayVisionApp.swift */,
 				D41A21AC2B75C88B0084692E /* ContentView.swift */,
+				D4CCDF782B800B7D000F6F2E /* VideoDisplayView.swift */,
+				D4CCDF7A2B800BCB000F6F2E /* VideoDisplaySwiftUIView.swift */,
 				D41A21AE2B75C88C0084692E /* Assets.xcassets */,
 				D41A21B32B75C88C0084692E /* Info.plist */,
 				D41A21B02B75C88C0084692E /* Preview Content */,
@@ -176,6 +182,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D41A21AD2B75C88B0084692E /* ContentView.swift in Sources */,
+				D4CCDF7B2B800BCB000F6F2E /* VideoDisplaySwiftUIView.swift in Sources */,
+				D4CCDF792B800B7D000F6F2E /* VideoDisplayView.swift in Sources */,
 				D41A21E42B78F6A50084692E /* backend.swift in Sources */,
 				D41A21AB2B75C88B0084692E /* VirtualDisplayVisionApp.swift in Sources */,
 			);
