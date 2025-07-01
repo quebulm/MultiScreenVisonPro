@@ -20,4 +20,4 @@ This project enables extending a Mac's display to multiple screens using VisionP
 - **User Interface Enhancements**: Develop a more intuitive and user-friendly interface.
 
 ### Current Status
-This project is at the proof of concept stage. It can demonstrate the extended display functionality but may experience lag and is limited in features. Work is ongoing...
+This project is at the proof of concept stage. It can demonstrate the extended display functionality but experience lag and is limited in features. Please note: active development has been discontinued.
